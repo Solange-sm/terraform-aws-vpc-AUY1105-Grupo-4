@@ -170,3 +170,31 @@ resource "aws_security_group" "sg_computo" {
     Name = "${var.environment}-sg"
   }
 }
+
+# --- REGLAS DE SEGURIDAD Y AUDITORÍA ---
+
+# Solución CKV2_AWS_12: Restringir Security Group por defecto
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.mi_vpc.id
+}
+
+# Solución CKV2_AWS_11: Flow Logs para Auditoría
+resource "aws_cloudwatch_log_group" "vpc_log_group" {
+  # checkov:skip=CKV_AWS_158: No es viable en AWS Academy (restriccion KMS)
+  name              = "/aws/vpc/${var.environment}-flow-logs"
+  retention_in_days = 365
+  tags = {
+    Name = "${var.environment}-lg"
+  }
+}
+
+data "aws_iam_role" "labrole" {
+  name = "LabRole"
+}
+
+resource "aws_flow_log" "mi_vpc_flow_log" {
+  iam_role_arn    = data.aws_iam_role.labrole.arn
+  log_destination = aws_cloudwatch_log_group.vpc_log_group.arn
+  traffic_type    = "ALL"
+  vpc_id          = aws_vpc.mi_vpc.id
+}
