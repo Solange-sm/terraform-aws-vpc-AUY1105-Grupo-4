@@ -136,6 +136,9 @@ resource "aws_security_group" "sg_computo" {
   description = "Security Group gestionado por el modulo de redes para la instancia EC2"
   vpc_id      = aws_vpc.mi_vpc.id
 
+  # checkov:skip=CKV_AWS_260: Requerido por la actividad para exponer el servidor web HTTP
+  # checkov:skip=CKV2_AWS_5: El SG se asocia a la instancia en un modulo externo (EC2)
+
   # Entrada: SSH restringido por la IP inyectada del Orquestador
   ingress {
     description = "Acceso SSH seguro"
