@@ -131,13 +131,12 @@ resource "aws_route_table_association" "private_assoc_2" {
 }
 
 # --- SECURITY GROUP (Para la EC2 de la EV1) ---
+# checkov:skip=CKV_AWS_260: Requerido por la actividad para exponer el servidor web HTTP
+# checkov:skip=CKV2_AWS_5: El SG se asocia a la instancia en un modulo externo (EC2)
 resource "aws_security_group" "sg_computo" {
   name        = "${var.environment}-sg"
   description = "Security Group gestionado por el modulo de redes para la instancia EC2"
   vpc_id      = aws_vpc.mi_vpc.id
-
-  # checkov:skip=CKV_AWS_260: Requerido por la actividad para exponer el servidor web HTTP
-  # checkov:skip=CKV2_AWS_5: El SG se asocia a la instancia en un modulo externo (EC2)
 
   # Entrada: SSH restringido por la IP inyectada del Orquestador
   ingress {
@@ -157,12 +156,21 @@ resource "aws_security_group" "sg_computo" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Salida: Permitir todo el tráfico saliente
+  # Salida: Permitir trafico de salida HTTPS (Correccion CKV_AWS_382)
   egress {
-    description = "Salida total permitida"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    description = "Permitir trafico de salida HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Salida: Permitir trafico de salida HTTP (Correccion CKV_AWS_382)
+  egress {
+    description = "Permitir trafico de salida HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -170,7 +178,6 @@ resource "aws_security_group" "sg_computo" {
     Name = "${var.environment}-sg"
   }
 }
-
 # --- REGLAS DE SEGURIDAD Y AUDITORÍA ---
 
 # Solución CKV2_AWS_12: Restringir Security Group por defecto
