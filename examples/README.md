@@ -38,10 +38,9 @@ terraform apply
 
 ## Outputs esperados
 
-- `ejemplo_vpc_id`
-- `ejemplo_subredes_publicas`
-- `ejemplo_subredes_privadas`
-- `ejemplo_security_group_id`
+- ejemplo_vpc_id
+- ejemplo_subredes_publicas
+- ejemplo_security_group_id
 
 ## Nota
 
