@@ -1,58 +1,40 @@
-# Asegurarse de documentar todos los cambios realizados sobre el proyecto.
-
 # Changelog
-Todos los cambios notables en este proyecto serán documentados en este archivo.
 
-El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
-y este proyecto se adhiere a las buenas prácticas de versionado y revisión de código mediante Pull Requests.
+Todos los cambios notables en este proyecto serán documentados en este archivo. El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a Versionado Semántico (SemVer).
 
-## [Unreleased] - En desarrollo
+## [1.0.0] - 2026-05-28
 
-### Añadido / Modificado / Solucionado
+### Added
 
-**Pull Request #3 (Versión de Ejemplo Funcional y Documentación del Módulo VPC)**
-- **Autoras:** Solange y Mary
-- **Cambios:**
-  - **Módulo VPC:** Creación del directorio `vpc_module/` con la estructura requerida por la evaluación: `main.tf`, `variables.tf`, `outputs.tf` y `versions.tf`.
-  - **Módulo VPC:** Implementación de la VPC principal con CIDR parametrizable y habilitación de DNS hostnames/support.
-  - **Módulo VPC:** Creación de subredes públicas y privadas parametrizadas por variables.
-  - **Módulo VPC:** Implementación de Internet Gateway, NAT Gateway, tablas de rutas y asociaciones de rutas.
-  - **Módulo VPC:** Configuración del Security Group del cómputo con SSH restringido por IP autorizada (`mi_ip_acceso`) y salida controlada.
-  - **Outputs del módulo:** Exposición de `vpc_id`, `public_subnet_ids`, `private_subnet_ids` y `security_group_id`.
-  - **Ejemplos:** Creación de la carpeta `examples/` con un `main.tf` funcional para probar el módulo de redes de forma aislada.
-  - **Ejemplos:** Creación de `examples/README.md` con explicación del propósito del ejemplo y pasos básicos de ejecución.
-  - **Documentación:** Actualización del `README.md` raíz para describir el objetivo del repositorio y el uso del módulo.
-  - **Versionado:** Actualización de `versions.tf` con versión requerida de Terraform y proveedor AWS compatible con el módulo.
-  - **Seguridad:** Parametrización obligatoria de `mi_ip_acceso` para evitar exposición pública del acceso SSH.
-  - **Validación:** Inclusión de excepciones documentadas para hallazgos esperables de Checkov en entornos de laboratorio cuando aplica.
+- Inicialización del módulo de Redes (VPC) desacoplado de la infraestructura monolítica.
+- Implementación de la VPC principal con soporte DNS habilitado.
+- Creación de dos subredes públicas y dos subredes privadas parametrizadas por CIDR y zona de disponibilidad.
+- Implementación de Internet Gateway para conectividad pública.
+- Implementación de Elastic IP y NAT Gateway para salida a Internet desde subredes privadas.
+- Creación de tablas de ruteo públicas y privadas con sus respectivas asociaciones.
+- Implementación de Security Group para recursos de cómputo, con acceso SSH restringido por IP autorizada y acceso HTTP para el servidor web.
+- Implementación de Flow Logs para auditoría de tráfico de red en la VPC.
+- Configuración de outputs para exponer `vpc_id`, `public_subnet_ids`, `private_subnet_ids` y `security_group_id`.
+- Archivos core de Terraform: `main.tf`, `variables.tf`, `outputs.tf` y `versions.tf` completamente parametrizados.
+- Variables configurables para `vpc_cidr`, `public_subnet_cidrs`, `private_subnet_cidrs`, `availability_zones`, `mi_ip_acceso` y `environment`.
 
+### Changed
 
-**Pull Request #2 (Ajustes de Seguridad, Calidad y Validación del Módulo VPC)**
-- **Autoras:** Solange y Mary
-- **Cambios:**
-- **Seguridad (Checkov):** Corrección de hallazgos relacionados con la exposición pública del Security Group y la asociación de recursos del módulo.
-  - **Seguridad (Checkov):** Documentación de excepciones justificadas para reglas aplicables al entorno de AWS Academy.
-  - **Calidad:** Refinamiento de nombres de recursos y tags siguiendo la nomenclatura estándar del proyecto.
-  - **Documentación:** Mejora de descripciones en `variables.tf` y `outputs.tf` para facilitar la reutilización del módulo.
-  - **Módulo VPC:** Consolidación del módulo como componente reutilizable e independiente para ser consumido por el repositorio principal.
-  - **Ejemplos:** Ajuste del ejemplo funcional para que refleje un consumo realista del módulo con variables obligatorias y outputs verificables.
+- Reorganización de la lógica de red para permitir reutilización e integración desde el repositorio principal.
+- Adaptación del módulo para consumo remoto desde GitHub como dependencia externa.
+- Estandarización de nombres y tags de recursos según la convención definida para la evaluación.
+- Ajuste de la documentación y parametrización para facilitar la reutilización del módulo en distintos entornos.
 
+### Security
 
-**Pull Request #1 (Inicialización del Repositorio Módulo VPC)**
-- **Autoras:** Solange y Mary
-- **Cambios:**
-  - **Repositorio:** Inicialización del repositorio base para almacenar el módulo de redes de la evaluación parcial 2.
-  - **Repositorio:** Creación de la rama principal y configuración inicial del proyecto.
-  - **Repositorio:** Creación del archivo `.gitignore` para excluir archivos temporales, estados de Terraform, planes, claves privadas y artefactos de Checkov.
-  - **Repositorio:** Creación del archivo `CHANGELOG.md` para documentar todos los cambios realizados sobre el proyecto.
-  - **Repositorio:** Creación del `README.md` raíz con objetivo general, propósito del módulo e instrucciones básicas de uso.
+- Restricción del acceso SSH mediante la variable `mi_ip_acceso` en formato CIDR.
+- Desactivación de asignación automática de IP pública en las subredes públicas para ajustarse a validaciones de seguridad.
+- Restricción del Security Group por defecto de la VPC.
+- Habilitación de logs de flujo para fortalecer trazabilidad y auditoría de red.
+- Inclusión de excepciones justificadas de Checkov para el acceso HTTP público requerido por la actividad y para la asociación del Security Group desde un módulo externo.
 
----
+### Fixed
 
-### Pendiente de Implementar (Próximos pasos a registrar)
-
-**Versión Inicial del Módulo VPC**
-- Crear y publicar el release tag `v1.0.0` cuando el módulo quede estable y funcional.
-- Asociar el tag con el commit final validado.
-- Registrar en el release una descripción breve de los cambios incluidos en la versión inicial.
-- Verificar que el ejemplo funcional en `examples/` ejecute correctamente con `terraform init`, `plan` y `apply`.
+- Corrección de observaciones de análisis estático y seguridad detectadas durante la integración del módulo en el pipeline.
+- Ajustes de compatibilidad de versiones de Terraform y provider AWS para ejecución correcta en el entorno de CI/CD.
+- Corrección de configuración necesaria para que el módulo funcione con el repositorio principal y sus validaciones automatizadas.
